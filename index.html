@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <title>Auto Fill Form v1.0</title>
+</head>
+<body>
+    <div class="container">
+        <div class="mb-3 row">
+            <label class="col-sm-3 col-form-label" for="ip-location">位置：</label>
+            <div class="col-sm-9">
+                <select name="ip-location" id="ip-location" class="form-select">
+                    <option value="180">180</option>
+                    <option value="161">161</option>
+                </select>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="tender-way" class="col-sm-3 col-form-label">招標方式：</label>
+            <div class="col-sm-9">
+                <select name="tender-way" id="tender-way" class="form-select">
+                    <option value="12">公開取得電子報價單</option>
+                    <option value="2">公開取得報價單與企劃書</option>
+                    <option value="1">公開招標</option>
+                    <option value="4">限制性招標(經公開)</option>
+                    <option value="5">選擇性招標(建立合格廠商名單)</option>
+                    <option value="7">選擇性招標(後續邀標)</option>
+                    <option value="3">選擇性招標(個案)</option>
+                </select>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="award-way" class="col-sm-3 col-form-label">決標方式：</label>
+            <div class="col-sm-9">
+                <select name="award-way" id="award-way" class="form-select">
+                    <option value="">請選擇</option>
+                    <option value="1">最低標</option>
+                    <option value="2">最高標</option>
+                    <option value="3">最有利標</option>
+                </select>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="multiple-award" class="col-sm-4 col-form-label">複數/非複數：</label>
+            <div class="col-sm-8">
+                <select name="multiple-award" id="multiple-award" class="form-select">
+                    <option value="">請選擇</option>
+                    <option value="Y">複數決標</option>
+                    <option value="N">非複數決標</option>
+                </select>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <div class="col-sm-12">
+                <input class="btn btn-outline-primary form-control" type="button" value="執行" onclick="start()" />
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        function start() {
+            ipcRenderer.invoke(
+                'autoFillForm', 
+                document.querySelector('#ip-location').value,
+                document.querySelector('#tender-way').value,
+                document.querySelector('#award-way').value,
+                document.querySelector('#multiple-award').value,
+            );
+        }
+        
+    </script>
+</body>
+</html>

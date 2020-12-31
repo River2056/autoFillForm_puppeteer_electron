@@ -1,0 +1,1 @@
+electron-packager . autoFillForm_v1_0 --platform=win32 --arch=x64
