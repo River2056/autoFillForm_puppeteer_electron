@@ -25,6 +25,15 @@ const tenderWayFillForm = {
         // 自辦
         await page.click('#By_itself');
 
+        if(tenderWay !== '12') {
+            // 依據法條
+            const lastOptionValue = await page.evaluate(() => {
+                const options = document.querySelector('#fkTpamByLaw').options;
+                return options[options.length - 1].value;
+            });
+            await page.select('select#fkTpamByLaw', lastOptionValue);
+        }
+
         // 本採購是否屬「具敏感性或國安(含資安)疑慮之業務範疇」採購
         await page.click('#isSensitive_Y');
 
@@ -34,12 +43,12 @@ const tenderWayFillForm = {
         // 所有金額欄位(由於沒id只好這樣做)
         const currencyInputElementHandles = await page.$$('input[type=text][id=currency]');
         for(let el of currencyInputElementHandles) {
-            const innerHtmlContent = await page.evaluate(e => e.innerHTML, el);
-            // const innerHtmlContent = await elInnerHtml.jsonValue();
-            console.log(`innerHtmlContent: ${innerHtmlContent}`);
-            if(innerHtmlContent === null || innerHtmlContent === '') await el.type('550000', { delay: 100 });
-            // await el.click({ clickCount: 3 });
-            // await el.type('550000', { delay: 100 });
+            await el.focus();
+            await page.keyboard.down('Control');
+            await page.keyboard.press('KeyA');
+            await page.keyboard.up('Control');
+            await page.keyboard.press('Backspace');
+            await el.type('550000', { delay: 100 });
         }
 
         // 預算金額是否公開
@@ -67,9 +76,27 @@ const tenderWayFillForm = {
         // 是否屬二以上機關之聯合採購(不適用共同供應契約規定)
         await page.click('#isJointProcurement_N');
 
+        if(tenderWay !== '12') {
+            // 是否屬特殊採購
+            await page.click('#isSpecial_N');
+
+            // 是否屬統包
+            await page.click('#isPackage_N');
+
+            // 是否採行協商措施
+            await page.click('#nego_N');
+
+            // 是否適用採購法第104條或105條或招標期限標準第10條或第4條之1
+            await page.click('#isWait_N');
+        }
+
         await page.evaluate(() => SaveAndDirect('next'));
     },
     vars: async (page, tenderWay) => {
+        if(tenderWay !== '12') {
+            await page.type('#costPayPhyObtain', '現金', { delay: 100 });
+        }
+
         // 是否提供電子投標 => 資格文件, 規格文件
         if(tenderWay === '12') {
             await page.waitForSelector('#isEsubmitSpec_Y').then(e => e.click());
@@ -91,6 +118,11 @@ const tenderWayFillForm = {
         await page.evaluate(() => SaveAndDirect('next'));
     },
     other: async (page, fileName, tenderWay) => {
+        if(tenderWay !== '12') {
+            // 是否依據採購法第99條
+            await page.click('#adaptLaw_N');
+        }
+
         // 履約地點
         // await page.select('#allCelocation', '2,2,N');
 
@@ -152,23 +184,9 @@ const tenderWayFillForm = {
             await page.type('#engDesc', 'some hinting text...');
         }
 
-        // if(tenderWay === '12') {
-        //     await page.evaluate(() => SaveAndDirect('up2'));
-        // } else {
-        // }
         await page.click('#Next_page');
     },
     upload: async (page, tenderWay) => {
-        // await page.waitForNavigation();
-        // await page.evaluate(() => SaveAndDirect('next'));
-        // await page.type('#td_iteminfo_itemNo_0', '1', { delay: 100 });
-        // await page.type('#td_iteminfo_itemName_0', '123', { delay: 100 });
-        // await page.type('#td_iteminfo_itemUnit_0', '1', { delay: 100 });
-        // await page.type('#td_iteminfo_itemQty_0', '1', { delay: 100 });
-        // await page.evaluate(() => SaveAndDirect('next'));
-        // await page.waitForNavigation();
-        // await page.evaluate(() => SaveAndDirect('next'));
-        // await page.waitForNavigation();
         await page.evaluate(() => SaveAndDirect('next'));
     },
     vendorStatement: async (page) => {
@@ -186,12 +204,12 @@ const tenderWayFillForm = {
         await page.evaluate(() => SaveAndDirect('next'));
     },
     item: async (page, tenderWay) => {
-        await page.waitForNavigation();
-        await page.type('#tpamTenderItemToList[0].itemName', '123', { delay: 100 });
-        await page.type('#tpamTenderItemToList[0].itemQty', '1', { delay: 100 });
-        await page.type('#tpamTenderItemToList[0].itemUnit', '1', { delay: 100 });
-        await page.type('#itemAmount_0', '550000', { delay: 100 });
-        await page.evaluate(() => SaveAndDirect('next'));
+        await page.type('input[id="tpamTenderItemToList[0].itemName"]', '123', { delay: 100 });
+        await page.type('input[id="tpamTenderItemToList[0].itemQty"]', '1', { delay: 100 });
+        await page.type('input[id="tpamTenderItemToList[0].itemUnit"]', '1', { delay: 100 });
+        await page.type('input[id="itemAmount_0"]', '550000', { delay: 100 });
+        await page.click('#Next_page');
+        // await page.evaluate(() => SaveAndDirect('next'));
     }
 }
 
